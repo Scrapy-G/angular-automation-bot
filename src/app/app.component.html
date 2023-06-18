@@ -1,0 +1,68 @@
+<div id="app">
+  <section class="todo-wrapper">
+    <h1 class="todo-title">Your tasks</h1>
+    <form>
+      <input
+        type="text"
+        value="New task 1"
+        class="input-todo"
+        placeholder="Take the garbage out"
+      />
+      <div class="btn btn-add active" (click)="addTask('New task 1')">+</div>
+    </form>
+    <form>
+      <input
+        type="text"
+        value="New task 2"
+        class="input-todo"
+        placeholder="Take the garbage out"
+      />
+      <div class="btn btn-add active" (click)="addTask('New task 2')">+</div>
+    </form>
+    <form>
+      <input
+        type="text"
+        value="New task 3"
+        class="input-todo"
+        placeholder="Take the garbage out"
+      />
+      <div class="btn btn-add active" (click)="addTask('New task 3')">+</div>
+    </form>
+    <div v-if="pending.length > 0">
+      <p class="status busy">
+        You have {{ tasks.length }} task<span *ngIf="tasks.length != 1">s</span>
+      </p>
+      <ul class="todo-list">
+        <li *ngFor="let task of tasks" [class.cool]="task.completed">
+          <input
+            class="todo-checkbox"
+            [checked]="task.completed"
+            type="checkbox"
+            [name]="task.title"
+          />
+          <label
+            (click)="task.completed = !task.completed"
+            [for]="task.title"
+          ></label>
+          <span class="todo-text" (click)="task.completed = !task.completed">
+            {{ task.title }}, completed: {{ task.completed }}
+          </span>
+          <span class="delete" (click)="deleteTask(task)"></span>
+        </li>
+      </ul>
+    </div>
+
+    <p *ngIf="tasks.length == 0" class="status free" v-if="!pending.length">
+      <img
+        src="https://nourabusoud.github.io/vue-todo-list/images/beer_celebration.svg"
+        alt="celebration"
+      />Time to chill! You have no todos.
+    </p>
+  </section>
+
+  <div class="automation-panel">
+    <div class="automation-content">
+      <app-bot></app-bot>
+    </div>
+  </div>
+</div>

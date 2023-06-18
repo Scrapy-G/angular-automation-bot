@@ -1,0 +1,97 @@
+<div class="bot-container">
+  <div class="bot-topbar">
+    <h3>Step {{ step }}</h3>
+    <div>
+      <!-- close modal -->
+      <button>x</button>
+    </div>
+  </div>
+  <ng-container [ngSwitch]="step">
+    <div *ngSwitchCase="1">
+      <p *ngIf="selectedEls.length == 0">Select an element</p>
+      <p *ngIf="selectedEls.length > 0">
+        You selected {{ selectedEls.length }} elements,
+        <span *ngIf="selectedEls.length > 1"
+          >we predicted {{ suggestedEls.length }} additional element.</span
+        >
+        <br />
+        In total {{ totalElements }} are selected.
+      </p>
+      <div class="bot-modal-footer">
+        <button
+          class="btn-secondary"
+          (click)="clearSelectedElements()"
+        >
+          Reset
+        </button>
+        <button
+          class="btn-primary"
+          (click)="moveSuggestionsToSelection(); nextStep()"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+
+    <div *ngSwitchCase="2">
+      <p>Add action you want to do on this page.</p>
+      <div class="action-list">
+        <div
+          class="action-item"
+          (click)="selectAction('click')"
+        >
+          <p><b>Click a button</b></p>
+          <p class="text-muted small">
+            allows you to click on a button for each element
+          </p>
+        </div>
+        <div
+          class="action-item"
+          (click)="selectAction('input')"
+        >
+          <p><b>Input text</b></p>
+          <p class="text-muted small">
+            allows you to input text for each element
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div *ngSwitchCase="3">
+      <div class="overlay"></div>
+
+      <p>
+        <ng-container [ngSwitch]="botAction.type">
+          <b *ngSwitchCase="'click'">Click a button</b>
+          <b *ngSwitchCase="'input'">Click an input field</b>
+        </ng-container>
+      </p>
+
+      <div class="bot-modal-footer">
+        <button 
+          class="btn-primary" 
+          (click)="removeClassFromSelectedEls('bot-el'); nextStep()"
+        >Save</button>
+      </div>
+    </div>
+
+    <div *ngSwitchCase="4">
+      <p><b>Run bot</b></p>
+
+      <div *ngIf="botAction.type == 'input'">
+        <input 
+          type="text" 
+          [(ngModel)]="botAction.content" 
+          placeholder="Enter text"
+        />
+      </div>
+
+      <div class="bot-modal-footer">
+        <button class="btn-primary" 
+          (click)="executeActions()"
+        >Run bot</button>
+      </div>
+    </div>
+
+  </ng-container>
+</div>
