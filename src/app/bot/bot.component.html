@@ -1,31 +1,29 @@
+<div class="overlay" *ngIf="step == 3"></div>
 <div class="bot-container">
   <div class="bot-topbar">
     <h3>Step {{ step }}</h3>
     <div>
-      <!-- close modal -->
-      <button>x</button>
+      <button class="close-btn">&times;</button>
     </div>
   </div>
   <ng-container [ngSwitch]="step">
     <div *ngSwitchCase="1">
-      <p *ngIf="selectedEls.length == 0">Select an element</p>
-      <p *ngIf="selectedEls.length > 0">
-        You selected {{ selectedEls.length }} elements,
-        <span *ngIf="selectedEls.length > 1"
-          >we predicted {{ suggestedEls.length }} additional element.</span
+      <p *ngIf="selectedElements.length == 0">Select an element</p>
+      <p *ngIf="selectedElements.length > 0">
+        You selected {{ selectedElements.length }} elements,
+        <span *ngIf="selectedElements.length > 1"
+          >we predicted {{ suggestedElements.length }} additional element.</span
         >
         <br />
         In total {{ totalElements }} are selected.
       </p>
       <div class="bot-modal-footer">
-        <button
-          class="btn-secondary"
-          (click)="clearSelectedElements()"
-        >
+        <button class="btn-stroke mr-2" (click)="clearSelectedElements(); clearSuggestedElements()">
           Reset
         </button>
         <button
           class="btn-primary"
+          [disabled]="selectedElements.length == 0"
           (click)="moveSuggestionsToSelection(); nextStep()"
         >
           Save
@@ -36,62 +34,78 @@
     <div *ngSwitchCase="2">
       <p>Add action you want to do on this page.</p>
       <div class="action-list">
-        <div
-          class="action-item"
-          (click)="selectAction('click')"
-        >
+        <div class="action-item" (click)="selectAction('click'); nextStep()">
           <p><b>Click a button</b></p>
           <p class="text-muted small">
             allows you to click on a button for each element
           </p>
         </div>
-        <div
-          class="action-item"
-          (click)="selectAction('input')"
-        >
+        <div class="action-item" (click)="selectAction('input'); nextStep()">
           <p><b>Input text</b></p>
           <p class="text-muted small">
             allows you to input text for each element
           </p>
         </div>
       </div>
+
+      <div class="bot-modal-footer">
+        <span class="mr-2">Tasks: <b>{{ botTasks.length }}</b></span>
+        <button
+          [disabled]="botTasks.length == 0"
+          class="btn-primary"
+          (click)="runBot()"
+        >
+          Run Bot
+        </button>
+      </div>
     </div>
 
     <div *ngSwitchCase="3">
-      <div class="overlay"></div>
-
       <p>
-        <ng-container [ngSwitch]="botAction.type">
+        <ng-container [ngSwitch]="selectedAction">
           <b *ngSwitchCase="'click'">Click a button</b>
           <b *ngSwitchCase="'input'">Click an input field</b>
         </ng-container>
       </p>
 
       <div class="bot-modal-footer">
-        <button 
-          class="btn-primary" 
-          (click)="removeClassFromSelectedEls('bot-el'); nextStep()"
-        >Save</button>
+        <button
+          class="btn-primary"
+          (click)="selectedAction == 'click' ? saveTask() : nextStep()"
+          [disabled]="!targetElement"
+        >
+          Save
+        </button>
       </div>
     </div>
 
     <div *ngSwitchCase="4">
-      <p><b>Run bot</b></p>
+      <p><b>Enter some text</b></p>
 
-      <div *ngIf="botAction.type == 'input'">
-        <input 
-          type="text" 
-          [(ngModel)]="botAction.content" 
-          placeholder="Enter text"
+      <div>
+        <input
+          type="text"
+          [(ngModel)]="actionText"
+          placeholder="Enter some text"
         />
       </div>
 
       <div class="bot-modal-footer">
-        <button class="btn-primary" 
-          (click)="executeActions()"
-        >Run bot</button>
+        <button class="btn-primary" (click)="saveTask()">Save</button>
       </div>
     </div>
-
   </ng-container>
 </div>
+
+<div
+  #pointerCaptureElement
+  [hidden]="!hoveredElement || isRunningBot"
+  (mouseup)="onPointerMouseUp()"
+  class="bot-pointer-capture"
+  [ngStyle]="{
+    top: pointerCapturePosition?.y + 'px',
+    left: pointerCapturePosition?.x + 'px',
+    width: pointerCapturePosition?.width + 'px',
+    height: pointerCapturePosition?.height + 'px'
+  }"
+></div>
