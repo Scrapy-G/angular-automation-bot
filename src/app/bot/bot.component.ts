@@ -1,7 +1,7 @@
 import { Component, HostListener, ElementRef, ViewChild } from '@angular/core';
 import * as _ from 'lodash';
 
-enum botCssClasses {
+enum BotCssClasses {
   BOT_ELEMENT = '--bot-element',
   DISABLE_CLICK = '--bot-not-clickable',
   HOVERED = '--bot-hovered',
@@ -175,12 +175,12 @@ export class BotComponent {
   }
 
   clearSelectedElements() {
-    this.removeClassesFromElements(this.selectedElements, Object.values(botCssClasses));
+    this.removeClassesFromElements(this.selectedElements, Object.values(BotCssClasses));
     this.selectedElements = [];
   }
 
   clearSuggestedElements() {
-    this.removeClassesFromElements(this.suggestedElements, Object.values(botCssClasses));
+    this.removeClassesFromElements(this.suggestedElements, Object.values(BotCssClasses));
     this.suggestedElements = [];
   }
 
@@ -194,8 +194,8 @@ export class BotComponent {
     }
 
     this.addClassesToElements(element, [
-      botCssClasses.SELECTED,
-      botCssClasses.DISABLE_CLICK,
+      BotCssClasses.SELECTED,
+      BotCssClasses.DISABLE_CLICK,
     ]);
     this.selectedElements.push(element);
 
@@ -205,8 +205,8 @@ export class BotComponent {
       );
       this.suggestedElements.map((suggestedElement) => {
         this.addClassesToElements(suggestedElement, [
-          botCssClasses.SUGGESTED,
-          botCssClasses.DISABLE_CLICK,
+          BotCssClasses.SUGGESTED,
+          BotCssClasses.DISABLE_CLICK,
         ]);
       });
     }
@@ -221,8 +221,8 @@ export class BotComponent {
 
   selectAction(action: 'click' | 'input') {
     this.selectedAction = action;
-    this.addClassesToElements(this.selectedElements, [botCssClasses.HIGHLIGHT]);
-    this.removeClassesFromElements(this.selectedElements, [botCssClasses.DISABLE_CLICK]);
+    this.addClassesToElements(this.selectedElements, [BotCssClasses.HIGHLIGHT]);
+    this.removeClassesFromElements(this.selectedElements, [BotCssClasses.DISABLE_CLICK]);
   }
 
   selectTargetElement(element: Element) {
@@ -235,8 +235,8 @@ export class BotComponent {
     this.clearTargetElement();
     this.targetElement = element;
     this.addClassesToElements(element, [
-      botCssClasses.ACTION_TARGET,
-      botCssClasses.DISABLE_CLICK,
+      BotCssClasses.ACTION_TARGET,
+      BotCssClasses.DISABLE_CLICK,
     ]);
 
     const similarChildElements: Element[] = [];
@@ -257,8 +257,8 @@ export class BotComponent {
   selectLoopTargetElements(elements: Element[]) {
     elements.forEach((element) =>
       this.addClassesToElements(element, [
-        botCssClasses.LOOP_ACTION_TARGET,
-        botCssClasses.DISABLE_CLICK,
+        BotCssClasses.LOOP_ACTION_TARGET,
+        BotCssClasses.DISABLE_CLICK,
       ])
     );
     this.loopTargetElements = elements;
@@ -283,16 +283,16 @@ export class BotComponent {
     if (!this.targetElement) return;
 
     this.removeClassesFromElements(this.targetElement, [
-      botCssClasses.ACTION_TARGET,
-      botCssClasses.DISABLE_CLICK,
+      BotCssClasses.ACTION_TARGET,
+      BotCssClasses.DISABLE_CLICK,
     ]);
     this.targetElement = null;
   }
 
   clearLoopTargetElements() {
     this.removeClassesFromElements(this.loopTargetElements, [
-      botCssClasses.LOOP_ACTION_TARGET,
-      botCssClasses.DISABLE_CLICK,
+      BotCssClasses.LOOP_ACTION_TARGET,
+      BotCssClasses.DISABLE_CLICK,
     ]);
     this.loopTargetElements = [];
   }
