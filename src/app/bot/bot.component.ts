@@ -38,9 +38,7 @@ export class BotComponent {
       event.clientX,
       event.clientY
     )!;
-
-    const isChildOfBotModal =
-      !element || this.eRef.nativeElement.contains(element);
+    const isChildOfBotModal = !element || this.eRef.nativeElement.contains(element);
 
     if (isChildOfBotModal) {
       this.hoveredElement = null;
@@ -48,8 +46,7 @@ export class BotComponent {
     }
 
     this.hoveredElement = element;
-    const domRecangle = element.getBoundingClientRect();
-    this.pointerCapturePosition = domRecangle;
+    this.pointerCapturePosition = element.getBoundingClientRect();
   }
 
   @HostListener('document:mousedown')
@@ -62,15 +59,13 @@ export class BotComponent {
   mouseUp() {
     if (this.isRunningBot) return;
     this.pointerCaptureRef.nativeElement.style.pointerEvents = 'none';
-  }
-
-  step: number = 1;
-
-  hoveredElement: Element | null;
-
+  }  
+  
   @ViewChild('pointerCaptureElement') pointerCaptureRef: ElementRef;
   pointerCapturePosition: DOMRect | null;
-
+  step: number = 1;
+  
+  hoveredElement: Element | null;
   selectedElements: Element[] = [];
   suggestedElements: Element[] = [];
   targetElement: Element | null;
@@ -79,7 +74,6 @@ export class BotComponent {
   actionText: string = ''; //for input action
 
   isRunningBot: boolean = false;
-
   botTasks: BotTask[] = [];
 
   constructor(private eRef: ElementRef) {}
@@ -130,16 +124,11 @@ export class BotComponent {
       );
       score += sameClassesArray.length * 7;
 
-      //is text content the same
       if (sameTagElement.textContent == childElement.textContent) {
         score += 10;
       }
 
-      //have similar parent tag
-      if (
-        sameTagElement.parentElement?.tagName ==
-        childElement.parentElement?.tagName
-      ) {
+      if (sameTagElement.parentElement?.tagName == childElement.parentElement?.tagName) {
         score += 5;
       }
 
@@ -159,7 +148,6 @@ export class BotComponent {
     /* lower for less strict element similarity
     higher for more strict similiarty */
     const minSimilarityScore = 7;
-
     return maxScore > minSimilarityScore ? mostSimilarChildElement : null;
   }
 
@@ -171,7 +159,6 @@ export class BotComponent {
     this.botTasks = [];
     this.clearSelectedElements();
     this.step = 1;
-
     this.isRunningBot = false;
   }
 
@@ -188,16 +175,12 @@ export class BotComponent {
   }
 
   clearSelectedElements() {
-    this.selectedElements.map((element) => {
-      this.removeClassesFromElement(element, Object.values(botCssClasses));
-    });
+    this.removeClassesFromElements(this.selectedElements, Object.values(botCssClasses));
     this.selectedElements = [];
   }
 
   clearSuggestedElements() {
-    this.suggestedElements.map((element) => {
-      this.removeClassesFromElement(element, Object.values(botCssClasses));
-    });
+    this.removeClassesFromElements(this.suggestedElements, Object.values(botCssClasses));
     this.suggestedElements = [];
   }
 
@@ -210,7 +193,7 @@ export class BotComponent {
       return;
     }
 
-    this.addClassesToElement(element, [
+    this.addClassesToElements(element, [
       botCssClasses.SELECTED,
       botCssClasses.DISABLE_CLICK,
     ]);
@@ -221,7 +204,7 @@ export class BotComponent {
         this.selectedElements
       );
       this.suggestedElements.map((suggestedElement) => {
-        this.addClassesToElement(suggestedElement, [
+        this.addClassesToElements(suggestedElement, [
           botCssClasses.SUGGESTED,
           botCssClasses.DISABLE_CLICK,
         ]);
@@ -238,8 +221,8 @@ export class BotComponent {
 
   selectAction(action: 'click' | 'input') {
     this.selectedAction = action;
-    this.addClassToSelectedElements(botCssClasses.HIGHLIGHT);
-    this.removeClassFromSelectedElements(botCssClasses.DISABLE_CLICK);
+    this.addClassesToElements(this.selectedElements, [botCssClasses.HIGHLIGHT]);
+    this.removeClassesFromElements(this.selectedElements, [botCssClasses.DISABLE_CLICK]);
   }
 
   selectTargetElement(element: Element) {
@@ -250,9 +233,8 @@ export class BotComponent {
     }
 
     this.clearTargetElement();
-
     this.targetElement = element;
-    this.addClassesToElement(element, [
+    this.addClassesToElements(element, [
       botCssClasses.ACTION_TARGET,
       botCssClasses.DISABLE_CLICK,
     ]);
@@ -274,7 +256,7 @@ export class BotComponent {
 
   selectLoopTargetElements(elements: Element[]) {
     elements.forEach((element) =>
-      this.addClassesToElement(element, [
+      this.addClassesToElements(element, [
         botCssClasses.LOOP_ACTION_TARGET,
         botCssClasses.DISABLE_CLICK,
       ])
@@ -291,7 +273,7 @@ export class BotComponent {
     this.botTasks.push(task);
 
     this.clearTargetElement();
-    this.clearCurrentTask();
+    this.actionText = '';
     this.clearLoopTargetElements();
 
     this.step = 2;
@@ -300,24 +282,18 @@ export class BotComponent {
   clearTargetElement() {
     if (!this.targetElement) return;
 
-    this.removeClassesFromElement(this.targetElement, [
+    this.removeClassesFromElements(this.targetElement, [
       botCssClasses.ACTION_TARGET,
       botCssClasses.DISABLE_CLICK,
     ]);
     this.targetElement = null;
   }
 
-  clearCurrentTask() {
-    this.actionText = ''; //for input action
-  }
-
   clearLoopTargetElements() {
-    this.loopTargetElements.forEach((loopElement) =>
-      this.removeClassesFromElement(loopElement, [
-        botCssClasses.LOOP_ACTION_TARGET,
-        botCssClasses.DISABLE_CLICK,
-      ])
-    );
+    this.removeClassesFromElements(this.loopTargetElements, [
+      botCssClasses.LOOP_ACTION_TARGET,
+      botCssClasses.DISABLE_CLICK,
+    ]);
     this.loopTargetElements = [];
   }
 
@@ -329,22 +305,18 @@ export class BotComponent {
     }
   }
 
-  addClassesToElement(element: Element, cssClasses: string[]) {
-    cssClasses.forEach((cssClass) => element.classList.add(cssClass));
+  addClassesToElements(elements: Element | Element[], cssClasses: string[]) {
+    const array = Array.isArray(elements) ? elements : [elements];    
+    array.forEach(element => {
+      cssClasses.forEach((cssClass) => element.classList.add(cssClass))
+    });
   }
 
-  removeClassesFromElement(element: Element, cssClasses: string[]) {
-    cssClasses.forEach((cssClass) => element.classList.remove(cssClass));
-  }
-
-  addClassToSelectedElements(className: string) {
-    this.selectedElements.map((el) => el.classList.add(className));
-  }
-
-  removeClassFromSelectedElements(className: string) {
-    [...this.selectedElements, ...this.suggestedElements].map((el) =>
-      el.classList.remove(className)
-    );
+  removeClassesFromElements(elements: Element | Element[], cssClasses: string[]) {
+    const array = Array.isArray(elements) ? elements : [elements];
+    array.forEach((element) => {
+      cssClasses.forEach((cssClass) => element.classList.remove(cssClass));
+    });
   }
 
   moveSuggestionsToSelection() {
