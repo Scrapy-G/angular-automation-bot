@@ -67,7 +67,6 @@ export class BotComponent {
   step: number = 1;
 
   hoveredElement: Element | null;
-  disabledElement: Element; //no pointer event
 
   @ViewChild('pointerCaptureElement') pointerCaptureRef: ElementRef;
   pointerCapturePosition: DOMRect | null;
@@ -82,18 +81,6 @@ export class BotComponent {
   isRunningBot: boolean = false;
 
   botTasks: BotTask[] = [];
-
-  task: {
-    action: 'click' | 'input';
-    targetSelector: string;
-    targetElements: Element | null;
-    content: string;
-  } = {
-    action: 'click',
-    targetSelector: '',
-    targetElements: null,
-    content: '',
-  };
 
   constructor(private eRef: ElementRef) {}
 
@@ -112,8 +99,8 @@ export class BotComponent {
       elTags.push(el.tagName);
     });
 
-    const hasSameTag: boolean = this.areAllElementsEqual(elTags);
-    const hasSameParent: boolean = this.areAllElementsEqual(elParents);
+    const hasSameTag: boolean = this.areAllArrayItemsEqual(elTags);
+    const hasSameParent: boolean = this.areAllArrayItemsEqual(elParents);
 
     if (!hasSameTag || !hasSameParent) return [];
 
@@ -181,11 +168,10 @@ export class BotComponent {
 
     this.botTasks.forEach((task) => this.executeTask(task));
 
-    //state cleanup
     this.botTasks = [];
     this.clearSelectedElements();
-
     this.step = 1;
+
     this.isRunningBot = false;
   }
 
@@ -195,7 +181,7 @@ export class BotComponent {
         (taskElement as HTMLElement).click();
       } else {
         (taskElement as HTMLInputElement).value = task.actionText || '';
-        //so application can respond to input
+        //allow application to respond to input
         taskElement.dispatchEvent(new Event('input'));
       }
     });
@@ -257,33 +243,19 @@ export class BotComponent {
   }
 
   selectTargetElement(element: Element) {
-    //TODO: What to do when click is on selectedElement itself
-    //and not a child?
+    //only allow child elements
     if (this.selectedElements.includes(element)) {
       alert('Target element has to be a child of list element');
       return;
     }
 
-    if (this.targetElement) {
-      this.removeClassesFromElement(this.targetElement, [
-        botCssClasses.ACTION_TARGET,
-        botCssClasses.DISABLE_CLICK,
-      ]);
-    }
+    this.clearTargetElement();
 
     this.targetElement = element;
     this.addClassesToElement(element, [
       botCssClasses.ACTION_TARGET,
       botCssClasses.DISABLE_CLICK,
     ]);
-
-    //element is a selected element
-    if (this.selectedElements.includes(element)) {
-      this.loopTargetElements = this.selectedElements.filter(
-        (selectedElement) => selectedElement != element
-      );
-      return;
-    }
 
     const similarChildElements: Element[] = [];
     this.selectedElements.forEach((selectedElement) => {
@@ -311,10 +283,6 @@ export class BotComponent {
   }
 
   saveTask() {
-    if (!this.targetElement) {
-      //some error
-    }
-
     const task: BotTask = {
       action: this.selectedAction,
       targetElements: [this.targetElement!, ...this.loopTargetElements],
@@ -340,12 +308,7 @@ export class BotComponent {
   }
 
   clearCurrentTask() {
-    this.task = {
-      action: 'click',
-      targetSelector: '',
-      targetElements: null,
-      content: '',
-    };
+    this.actionText = ''; //for input action
   }
 
   clearLoopTargetElements() {
@@ -392,7 +355,7 @@ export class BotComponent {
     this.suggestedElements = [];
   }
 
-  areAllElementsEqual(arr: any[]): boolean {
+  areAllArrayItemsEqual(arr: any[]): boolean {
     return arr.every((val) => val === arr[0]);
   }
 
